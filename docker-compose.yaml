@@ -1,6 +1,7 @@
-services:
+version: "3.9"
 
-minio-nifi:
+services:
+  minio-nifi:
     image:  quay.io/minio/minio:${MINIO_VERSION}
     container_name: minio
     ports:
@@ -13,7 +14,7 @@ minio-nifi:
     networks:
       rede_fia:
 
-minio:
+  minio:
     image:  quay.io/minio/minio:${MINIO_VERSION}
     container_name: minio
     ports:
@@ -32,7 +33,7 @@ minio:
     command: server --console-address ":9001" /data
     networks:
        rede_fia:
-mc:
+  mc:
     image: minio/mc:${MINIO_MC_VERSION}
     container_name: mc
     depends_on:
@@ -49,7 +50,7 @@ mc:
     networks:
       rede_fia:
 
-nifi:
+  nifi:
     image: apache/nifi:${NIFI_VERSION}
     container_name: nifi-n
     hostname: nifi-n
@@ -69,7 +70,7 @@ nifi:
 
       rede_fia:
 
-clickhouse:
+  clickhouse:
     image: clickhouse/clickhouse-server:${CLICK_HOUSE_VERSION}
     depends_on:
       - minio
@@ -92,7 +93,7 @@ clickhouse:
     networks:
       rede_fia:
 
-spark-master:
+  spark-master:
     platform: linux/amd64
     image: fjardim/mds-spark
     hostname: spark-master
@@ -120,7 +121,7 @@ spark-master:
     #    limits:
     #      memory: 500m
 
-spark-worker:
+  spark-worker:
     platform: linux/amd64
     image: fjardim/mds-spark
     hostname: spark-worker
@@ -154,3 +155,7 @@ spark-worker:
       
 networks:
   rede_fia:
+
+  volumes:
+  minio_storage: {}
+
