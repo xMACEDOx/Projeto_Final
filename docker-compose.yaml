@@ -1,21 +1,8 @@
-version: "3.9"
+
 
 services:
-  minio-nifi:
-    image:  quay.io/minio/minio:${MINIO_VERSION}
-    container_name: minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: server --console-address ":9001" /data
-    networks:
-      rede_fia:
-
   minio:
-    image:  quay.io/minio/minio:${MINIO_VERSION}
+    image: quay.io/minio/minio:${MINIO_VERSION}
     container_name: minio
     ports:
       - "9000:9000"
@@ -32,7 +19,8 @@ services:
       MINIO_NOTIFY_KAFKA_TLS_EventKafka: "off"
     command: server --console-address ":9001" /data
     networks:
-       rede_fia:
+      - rede_fia
+
   mc:
     image: minio/mc:${MINIO_MC_VERSION}
     container_name: mc
@@ -40,20 +28,17 @@ services:
       - minio
     entrypoint: >
       /bin/sh -c "
-      until (/usr/bin/mc alias set myminio http://minio:9000 admin minioadmin) do sleep 1; done;     
-      
-      /usr/bin/mc mb myminio/bronze;    
-      
-      /usr/bin/mc event add  myminio/bronze arn:minio:sqs::EventKafka:kafka --event put --suffix .json;      
-     
+      until (/usr/bin/mc alias set myminio http://minio:9000 admin minioadmin) do sleep 1; done;
+      /usr/bin/mc mb myminio/bronze;
+      /usr/bin/mc event add myminio/bronze arn:minio:sqs::EventKafka:kafka --event put --suffix .json;
       sleep 3000 "
     networks:
-      rede_fia:
+      - rede_fia
 
   nifi:
     image: apache/nifi:${NIFI_VERSION}
-    container_name: nifi-n
-    hostname: nifi-n
+    container_name: nifi
+    hostname: nifi
     volumes:
       - ./19.Data-Flow-Nifi/files:/files
       - ./postgresql/postgresql-42.5.1.jar:/util/postgresql-42.5.1.jar
@@ -61,22 +46,67 @@ services:
       NIFI_WEB_HTTPS_PORT: "9443"
       SINGLE_USER_CREDENTIALS_USERNAME: admin
       SINGLE_USER_CREDENTIALS_PASSWORD: fia@2024@ladata@laboratorio
-      TZ: "America/Sao_Paulo"     
+      TZ: "America/Sao_Paulo"
     depends_on:
       - kafka-broker
     ports:
-      - 9443:9443
+      - "9443:9443"
     networks:
+      - rede_fia
 
-      rede_fia:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:${CONFLUENT_VERSION}
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+    ports:
+      - "2181:2181"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - rede_fia
+
+  kafka-broker:
+    image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
+    container_name: kafka-broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9991:9991"
+    environment:
+      KAFKA_BROKER_ID: 101
+      KAFKA_JMX_PORT: 9991
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka-broker:29092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'false'
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - rede_fia
 
   clickhouse:
     image: clickhouse/clickhouse-server:${CLICK_HOUSE_VERSION}
+    container_name: clickhouse
+    hostname: clickhouse
     depends_on:
       - minio
     platform: linux/amd64
-    container_name: clickhouse
-    hostname: clickhouse
     ports:
       - "18123:8123"
       - "29000:9000"
@@ -91,71 +121,10 @@ services:
       - ./25.Olap/s3.xml:/etc/clickhouse-server/config.d/config.xml
       - ./25.Olap/data:/var/lib/clickhouse/user_files
     networks:
-      rede_fia:
+      - rede_fia
 
-  spark-master:
-    platform: linux/amd64
-    image: fjardim/mds-spark
-    hostname: spark-master
-    container_name: spark-master
-    command: 
-      - /bin/sh
-      - -c
-      - |
-        /usr/local/spark/sbin/start-master.sh
-        start-notebook.sh --NotebookApp.token=''
-    ports:
-      - 8889:8888
-      - 4040:4040
-      - 4041:4041
-      - 4042:4042
-      - 4043:4043
-      - 8180:8080
-      - 7077:7077
-    volumes:
-      - ./31.Spark-Databricks/apacheSpark/util:/util/
-      - ./31.Spark-Databricks/apacheSpark/work:/home/user 
-      - ./31.Spark-Databricks/apacheSpark/env:/env 
-    #deploy:
-    #  resources:
-    #    limits:
-    #      memory: 500m
-
-  spark-worker:
-    platform: linux/amd64
-    image: fjardim/mds-spark
-    hostname: spark-worker
-    container_name: spark-worker
-    command: 
-      - /bin/sh
-      - -c
-      - |
-        /usr/local/spark/sbin/start-worker.sh spark-master:7077
-        start-notebook.sh --NotebookApp.token='' 
-    env_file:
-      - ./31.Spark-Databricks/apacheSpark/env/jupyter.env
-    ports:
-      - 5040:4040
-      - 5041:4041
-      - 5042:4042
-      - 5043:4043
-      - 8881:8081
-      - 36533:36533
-    volumes:
-      - ./31.Spark-Databricks/apacheSpark/util:/util/
-      - ./31.Spark-Databricks/apacheSpark/work:/home/user 
-    environment:
-      SPARK_MASTER: spark-master
-    depends_on:
-        - spark-master
-    #deploy:
-    #  resources:
-    #    limits:
-    #      memory: 1g
-      
 networks:
   rede_fia:
 
-  volumes:
-  minio_storage: {}
-
+volumes:
+ minio_storage: {}
