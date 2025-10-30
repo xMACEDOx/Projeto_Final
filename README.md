@@ -1,4 +1,5 @@
 Projeto_Final
+
 Este projeto implementa um pipeline de ingestão de dados em tempo quase real (near real-time) utilizando Apache NiFi, com o objetivo de capturar, autenticar e armazenar informações do sistema de transporte público de São Paulo (SPTrans) e dos arquivos GTFS (dados estáticos de transporte).
 
 A arquitetura foi projetada para coletar dados diretamente da API Olho Vivo, autenticar com o token da SPTrans, capturar posições e previsões de chegada dos ônibus e armazenar tudo na camada Bronze de um Data Lake hospedado no MinIO (S3).
@@ -103,10 +104,12 @@ Função: Faz ingestão dos arquivos GTFS (stops.txt, routes.txt, trips.txt, etc
 
 Permite correlacionar os dados estáticos de rotas e paradas com os dados dinâmicos da API Olho Vivo.
 
-2-Spark
+2-Minio
 
-3-FastApi
+3-Spark
 
-4-Postgres
+4-FastApi
 
-5-PowerBi
+5-Postgres
+
+6-PowerBi
