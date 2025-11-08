@@ -157,6 +157,22 @@ services:
     networks:
       - rede_fia
 
+  fastapi:
+    build: ./fastapi
+    container_name: fastapi
+    environment:
+      POSTGRES_USER: PROJETO_FINAL
+      POSTGRES_PASSWORD: PROJETO_FINAL
+      POSTGRES_DB: sptrans_gold
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - rede_fia
+
 networks:
   rede_fia:
 
