@@ -1,115 +1,88 @@
-Projeto_Final
+# 🚌 Projeto SPTrans Data Pipeline
 
-Este projeto implementa um pipeline de ingestão de dados em tempo quase real (near real-time) utilizando Apache NiFi, com o objetivo de capturar, autenticar e armazenar informações do sistema de transporte público de São Paulo (SPTrans) e dos arquivos GTFS (dados estáticos de transporte).
+### Monitoramento em Near Real-Time do Transporte Público de São Paulo
 
-A arquitetura foi projetada para coletar dados diretamente da API Olho Vivo, autenticar com o token da SPTrans, capturar posições e previsões de chegada dos ônibus e armazenar tudo na camada Bronze de um Data Lake hospedado no MinIO (S3).
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Apache Spark](https://img.shields.io/badge/Spark-3.3-orange)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100-green)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+![NiFi](https://img.shields.io/badge/Apache%20NiFi-Dataflow-success)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-informational)
+![MinIO](https://img.shields.io/badge/MinIO-S3%20Storage-critical)
+
+---
+
+## 📖 Visão Geral
+
+Este projeto implementa um **pipeline de dados moderno e open source** para monitorar em *tempo quase real* a operação do transporte público de São Paulo, utilizando dados da **API Olho Vivo (SPTrans)** e do **GTFS (dados estáticos)**.  
+A solução aplica o **modelo Medallion (Bronze, Silver, Gold)** e integra ferramentas como **NiFi, Spark, Airflow, MinIO, PostgreSQL, e FastAPI**, garantindo qualidade, rastreabilidade e automação no processamento.
+
+---
+
+## 🎯 Objetivos
+
+- Coletar dados em tempo quase real (posições, linhas, paradas e previsões de chegada) por meio da API Olho Vivo.  
+- Implementar arquitetura **Medalhão** para garantir governança e qualidade dos dados.  
+- Armazenar e processar dados com ferramentas open source (**NiFi, Spark, MinIO, PostgreSQL,**).  
+- Automatizar ingestão e transformação com **Aplicação em Spark**.  
+- Criar camadas analíticas (Gold) e disponibilizar KPIs via **FastAPI**.  
+- Gerar indicadores como:
+  - Pontualidade das linhas  
+  - Tempo médio entre chegadas  
+     
+
+---
+
+## 🧱 Arquitetura da Solução
+
+<img width="771" height="748" alt="Projeto drawio (1)" src="https://github.com/user-attachments/assets/842e7195-c0de-4870-8cd6-50957a0f6c57" />
+
+## 🧩 Modelo Medalhão (Camadas)
+
+| Camada | Descrição | Ferramentas |
+|---------|------------|-------------|
+| **Raw** | Dados brutos da API Olho Vivo armazenados no MinIO (JSON). | NiFi / Spark |
+| **Silver** | Dados tratados e padronizados via Spark, prontos para análise. | Spark |
+| **Gold** | Dados consolidados, limpos e enriquecidos com métricas e KPIs. | PostgreSQL / FastAPI |
+
+---
+
+## ⚙️ Ferramentas Utilizadas
+
+| Categoria | Tecnologias |
+|------------|-------------|
+| Ingestão | Apache NiFi |
+| Automação | Aplicação em Spark|
+| Processamento | Apache Spark |
+| Armazenamento | MinIO, PostgreSQL |
+| KPIs | FastAPI |
+| Containerização | Docker / Docker Compose |
+| Linguagem | Python (PySpark, FastAPI) |
+
+---
+
+## 🚀 Execução Local
+
+### 1️⃣ Clonar o repositório
+```bash
+git clone https://github.com/xMACEDOx/Projeto_Final.git
+
+#Entrar na pasta
+cd Projeto_Final
+```
+### 2️⃣ Subir o ambiente
+```bash
+docker-compose up -d
+````
+### 3️⃣ Acessar ferramentas
+| Serviço     | URL                                                      | Descrição                              |
+| ----------- | -------------------------------------------------------- | -------------------------------------- |
+| **NiFi**    | [http://localhost:8080/nifi](http://localhost:8080/nifi) | Ingestão de dados da API Olho Vivo     |
+| **MinIO**   | [http://localhost:9001](http://localhost:9001)           | Armazenamento S3 (dados Bronze/Silver) |
+| **Spark-Worker** | [http://localhost:8081](http://localhost:8081/)    | Exposição dos executores               |
+| **Postgres** | [http://localhost:5433](http://localhost:5433/)         | Database com a camada gold             |
+| **FastAPI** | [http://localhost:8000/docs](http://localhost:8000/docs) | Exposição de KPIs e indicadores        |
 
 
-1- Nifi
-
-O fluxo **Projeto.json** contém os seguintes componentes principais:
-
-**1.1 GET-API**
-
-Tipo: **GenerateFlowFile**
-
-Função: Inicia o pipeline, gerando um arquivo contendo o token de autenticação.
-
-{ "token": "SEU_TOKEN_SPTRANS" }
 
 
-Frequência: Executa a cada 1 minuto.
-
-🔐 2. Autenticação-token
-
-Tipo: InvokeHTTP
-
-Descrição: Realiza a autenticação na API Olho Vivo com o token informado.
-
-Método: POST
-
-URL: https://api.olhovivo.sptrans.com.br/v2.1/Login/Autenticar?token=<TOKEN>
-
-Saída esperada: Retorna true e gera o cookie de sessão (ASP.NET_SessionId).
-
-🍪 3. CapturarCookie
-
-Tipo: UpdateAttribute
-
-Função: Extrai o cookie da resposta do Login e armazena em um atributo cookie_header.
-
-Expressão:
-
-${set-cookie:replaceAll('.*apiCredentials=([^;]+);.*','$1')}
-
-
-Esse cookie será usado nas próximas requisições à API Olho Vivo.
-
-📍 4. Capturar-dados-Posição
-
-Tipo: InvokeHTTP
-
-Descrição: Requisição à API Olho Vivo para obter a posição em tempo real dos veículos.
-
-Método: GET
-
-URL: https://api.olhovivo.sptrans.com.br/v2.1/Posicao
-
-Header Dinâmico: Cookie: apiCredentials=${cookie_header}
-
-Saída: JSON contendo informações sobre veículos, horários e coordenadas GPS.
-
-📊 5. Ingestão-bronze (Posições)
-
-Tipo: PutS3Object
-
-Descrição: Armazena os dados de posição no bucket MinIO (raw/sptrans/posicoes/).
-
-Endpoint: http://minio:9000
-
-Chave do objeto:
-
-sptrans/posicoes/${filename}
-
-🕒 6. Capturar-Previsão-Chegada
-
-Tipo: InvokeHTTP
-
-Descrição: Consulta a API de previsão de chegada por parada.
-
-Método: GET
-
-URL:
-
-https://api.olhovivo.sptrans.com.br/v2.1/Parada/Buscar?termosBusca=123458
-
-
-Header Dinâmico: Cookie: apiCredentials=${cookie_header}
-
-Saída: JSON com previsões de chegada para paradas e linhas específicas.
-
-📥 7. Ingestão-bronze (Previsão)
-
-Tipo: PutS3Object
-
-Descrição: Armazena os dados de previsão no MinIO em:
-
-sptrans/previsao/${filename}
-
-🗂️ 8. GTFS-TXT e Ingestão-bronze (GTFS)
-
-Tipo: GetFile + PutS3Object
-
-Função: Faz ingestão dos arquivos GTFS (stops.txt, routes.txt, trips.txt, etc.) para o bucket raw/GTFS/Metadados/.
-
-Permite correlacionar os dados estáticos de rotas e paradas com os dados dinâmicos da API Olho Vivo.
-
-2-Minio
-
-3-Spark
-
-4-FastApi
-
-5-Postgres
-
-6-PowerBi
