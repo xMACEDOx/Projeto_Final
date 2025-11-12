@@ -79,7 +79,7 @@ docker-compose up -d
 | ----------- | -------------------------------------------------------- | -------------------------------------- |
 | **NiFi**    | [http://localhost:8080/nifi](http://localhost:8080/nifi) | Ingestão de dados da API Olho Vivo     |
 | **MinIO**   | [http://localhost:9001](http://localhost:9001)           | Armazenamento S3 (dados Bronze/Silver) |
-| **Spark-Worker** | [http://localhost:8081](http://localhost:8081/)    | Exposição dos executores               |
+| **Spark**   | [http://localhost:8081](http://localhost:8889/)          | Exposição dos executores               |
 | **Postgres** | [http://localhost:5433](http://localhost:5433/)         | Database com a camada gold             |
 | **FastAPI** | [http://localhost:8000/docs](http://localhost:8000/docs) | Exposição de KPIs e indicadores        |
 
