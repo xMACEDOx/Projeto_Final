@@ -1,0 +1,10 @@
+POSTGRES FIM:
+ 
+CREATE OR REPLACE VIEW public.vw_kpi_dashboard_enriquecido AS
+SELECT
+    k.*,
+    d.nome_linha,
+    d.regiao
+FROM public.vw_kpi_dashboard k
+LEFT JOIN public.dim_linha_regiao d
+  ON k.id_linha = d.id_linha;

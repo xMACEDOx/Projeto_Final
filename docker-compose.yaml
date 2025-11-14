@@ -142,6 +142,7 @@ services:
       - ./spark/work:/home/user
       - ./spark/env:/env
       - ./spark/jars:/opt/spark/jars
+      - ./postgresql/postgresql-42.5.1.jar:/opt/spark/jars/postgresql-42.5.1.jar
     networks:
       - rede_fia
 

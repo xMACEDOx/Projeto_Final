@@ -1,0 +1,39 @@
+DIM Região-Linha:
+
+CREATE TABLE dim_linha_regiao (
+    id_linha INT PRIMARY KEY,
+    nome_linha TEXT NOT NULL,
+    regiao TEXT NOT NULL
+);
+
+INSERT INTO dim_linha_regiao (id_linha, nome_linha, regiao) VALUES
+-- 🔹 Zona Norte
+(543, 'Term. Cachoeirinha – Lgo. São Francisco', 'zona_norte'),
+(614, 'Vl. Sabrina – Term. Pq. D. Pedro II', 'zona_norte'),
+(558, 'Vl. Nova Galvão – Term. Pq. D. Pedro II', 'zona_norte'),
+(2495, 'Term. Pirituba – Term. Lapa', 'zona_norte'),
+(709, 'Jd. Peri – Term. Pq. D. Pedro II', 'zona_norte'),
+
+-- 🔹 Zona Sul
+(1140, 'Jd. Miriam – Pq. D. Pedro II', 'zona_sul'),
+(59, 'Term. Sto. Amaro – Pq. D. Pedro II', 'zona_sul'),
+(1977, 'Term. Guarapiranga – Term. Sto. Amaro', 'zona_sul'),
+(1318, 'Jd. Selma – Term. Pq. D. Pedro II', 'zona_sul'),
+
+-- 🔹 Zona Leste
+(2160, 'Term. Aricanduva – Term. Pq. D. Pedro II', 'zona_leste'),
+(1055, 'Term. Sapopemba – Term. Pq. D. Pedro II', 'zona_leste'),
+(2580, 'Cid. Tiradentes – Term. Pq. D. Pedro II', 'zona_leste'),
+(1808, 'Term. Vl. Carrão – Term. Pq. D. Pedro II', 'zona_leste'),
+
+-- 🔹 Zona Oeste
+(689, 'Term. Pirituba – Term. Pq. D. Pedro II', 'zona_oeste'),
+(1376, 'Term. Lapa – Term. Pq. D. Pedro II', 'zona_oeste'),
+(782, 'Term. Pirituba – Term. Pq. D. Pedro II', 'zona_oeste'),
+(472, 'Term. Lapa – Term. Pq. D. Pedro II', 'zona_oeste'),
+
+-- 🔹 Centro
+(1523, 'Term. Amaral Gurgel – Term. Pq. D. Pedro II', 'centro'),
+(768, 'Pça. Ramos – Pq. D. Pedro II', 'centro'),
+(2506, 'Term. Princesa Isabel – Term. Pq. D. Pedro II', 'centro'),
+(1366, 'Term. Amaral Gurgel – Term. Sto. Amaro', 'centro');

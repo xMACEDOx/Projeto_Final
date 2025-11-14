@@ -8,24 +8,24 @@ router = APIRouter(prefix="/kpi", tags=["KPI"])
 
 # Dependência para abrir/fechar sessão
 def get_db():
-    db = SessionLocal()
+    db = SessionLocal() # Cria uma nova sessão de conexão com o banco
     try:
-        yield db
+        yield db # Disponibiliza a sessão para uso dentro da requisição
     finally:
-        db.close()
+        db.close()  # Fecha a conexão ao final (boa prática)
 
 # Retorna todas as linhas com seus KPIs
 @router.get("/dashboard")
-def get_all_kpis(db: Session = Depends(get_db)):
-    data = db.query(KpiDashboard).all()
+def get_all_kpis(db: Session = Depends(get_db)): 
+    data = db.query(KpiDashboard).all() # Faz uma consulta ORM na tabela/view KpiDashboard
     return data
 
-# Retorna uma linha específica
+# Retorna os KPIs de uma linha específica (filtrando por id_linha)
 @router.get("/dashboard/{id_linha}")
 def get_kpi_by_line(id_linha: str, db: Session = Depends(get_db)):
-    data = db.query(KpiDashboard).filter(KpiDashboard.id_linha == id_linha).first()
+    data = db.query(KpiDashboard).filter(KpiDashboard.id_linha == id_linha).first() # Filtra pelo ID da linha recebido como parâmetro
     if not data:
-        return {"error": "Linha não encontrada"}
+        return {"error": "Linha não encontrada"}  # Retorna um erro simples caso não encontre a linha
     return data
 
 # KPIs individuais
@@ -33,7 +33,7 @@ def get_kpi_by_line(id_linha: str, db: Session = Depends(get_db)):
 @router.get("/atraso")
 def get_atraso_medio(db: Session = Depends(get_db)):
     try:
-        # ✅ Corrigido: precisa envolver a query em text()
+
         result = db.execute(text("SELECT ROUND(AVG(atraso_medio_min), 2) AS atraso_medio FROM vw_kpi_dashboard"))
         row = result.fetchone()
         atraso = float(row[0]) if row and row[0] is not None else 0.0
@@ -46,7 +46,7 @@ def get_atraso_medio(db: Session = Depends(get_db)):
 @router.get("/frota")
 def get_frota_total(db: Session = Depends(get_db)):
     try:
-        # ✅ Corrigido: usa text() também
+        
         result = db.execute(text("SELECT SUM(frota_ativa) AS total_frota_ativa FROM vw_kpi_dashboard"))
         row = result.fetchone()
         frota_total = int(row[0]) if row and row[0] is not None else 0

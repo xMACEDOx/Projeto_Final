@@ -1,0 +1,90 @@
+POSTGRES 0.7 - DASHBOARD
+
+CREATE OR REPLACE VIEW public.vw_kpi_dashboard AS
+SELECT
+    p.id_linha,
+    COUNT(*) AS total_registros,
+    COUNT(DISTINCT p.prefixo_veiculo) AS frota_ativa,
+
+    -- 🔹 Atraso médio absoluto (sem sinal)
+    ROUND(
+        AVG(
+            ABS(
+                EXTRACT(
+                    EPOCH FROM (
+                        to_timestamp(
+                            to_char(p.hora_prevista::timestamptz, 'YYYY-MM-DD') || ' ' || p.hora_onibus_pos,
+                            'YYYY-MM-DD HH24:MI'
+                        ) - p.hora_prevista::timestamptz
+                    )
+                )
+            )
+        )::numeric / 60.0,
+        2
+    ) AS atraso_medio_min,
+
+    -- 🔹 Atraso médio apenas quando realmente atrasado
+    ROUND(
+        AVG(
+            CASE
+                WHEN (
+                    to_timestamp(
+                        to_char(p.hora_prevista::timestamptz, 'YYYY-MM-DD') || ' ' || p.hora_onibus_pos,
+                        'YYYY-MM-DD HH24:MI'
+                    ) - p.hora_prevista::timestamptz
+                ) > INTERVAL '0 second'
+                THEN EXTRACT(EPOCH FROM (
+                    to_timestamp(
+                        to_char(p.hora_prevista::timestamptz, 'YYYY-MM-DD') || ' ' || p.hora_onibus_pos,
+                        'YYYY-MM-DD HH24:MI'
+                    ) - p.hora_prevista::timestamptz
+                )) / 60.0
+                ELSE NULL
+            END
+        )::numeric,
+        2
+    ) AS atraso_medio_real_min,
+
+    -- 🔹 Adiantamento médio (quando chegou antes)
+    ROUND(
+        AVG(
+            CASE
+                WHEN (
+                    to_timestamp(
+                        to_char(p.hora_prevista::timestamptz, 'YYYY-MM-DD') || ' ' || p.hora_onibus_pos,
+                        'YYYY-MM-DD HH24:MI'
+                    ) - p.hora_prevista::timestamptz
+                ) < INTERVAL '0 second'
+                THEN ABS(EXTRACT(EPOCH FROM (
+                    to_timestamp(
+                        to_char(p.hora_prevista::timestamptz, 'YYYY-MM-DD') || ' ' || p.hora_onibus_pos,
+                        'YYYY-MM-DD HH24:MI'
+                    ) - p.hora_prevista::timestamptz
+                )) / 60.0)
+                ELSE NULL
+            END
+        )::numeric,
+        2
+    ) AS adiantamento_medio_min,
+
+    -- 🔹 Percentual de acessibilidade
+    ROUND(
+        (SUM(CASE WHEN p.acessivel THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(*), 0)) * 100,
+        2
+    ) AS acessibilidade_perc,
+
+    -- 🔹 Percentual de operação ativa
+    ROUND(
+        (SUM(
+            CASE
+                WHEN LOWER(p.operando_onibus) IN ('s', 'sim', 'true', '1') THEN 1
+                ELSE 0
+            END
+        )::numeric / NULLIF(COUNT(*), 0)) * 100,
+        2
+    ) AS operacao_ativa_perc
+
+FROM public.previsao_posicoes_enriquecida p
+WHERE p.hora_onibus_pos IS NOT NULL
+  AND p.hora_prevista IS NOT NULL
+GROUP BY p.id_linha;
