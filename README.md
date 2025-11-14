@@ -206,7 +206,7 @@ Demonstração clara de habilidades avançadas de engenharia de dados
 # 🌐 ARQUITETURA ESCALÁVEL — PRÓXIMOS PASSOS DO PROJETO
 
 Esta seção é para documentar como o projeto pode evoluir para uma solução corporativa e altamente escalável.
-Aqui estão alguns tópicos já estruturados — você pode preencher cada um deles com seus futuros projetos.
+Aqui estão alguns tópicos já estruturados — você pode preencher cada um deles com seus futuros projetos..
 
 
 
