@@ -20,7 +20,7 @@ A solução final demonstra habilidades completas de ponta a ponta em engenharia
 
 ## 🚀 Destaques do Projeto
 
-Ingestão automatizada com Apache NiFi, incluindo autenticação dinâmica, manipulação de cookies e coleta contínua da API Olho Vivo.
+Ingestão automatizada com Apache NiFi, incluindo autenticação dinâmica, manipulação de cookies e coleta contínua da API Olho Vivo. e a ingestão com spark, garantindo o looping continuo da previsão de chegada de alguns dos principais onibus de cada região de SP.
 
 Data Lake estruturado em camadas Raw, Silver e Gold, armazenado no MinIO (S3 compatível).
 
@@ -41,7 +41,10 @@ Infra totalmente containerizada via Docker Compose, reproduzível em qualquer m�
 
 # ARQUITETURA DO PROJETO
 
-Cole aqui o diagrama da sua arquitetura atual
+
+<img width="502" height="748" alt="Projeto drawio (6)" src="https://github.com/user-attachments/assets/71da1095-0825-4272-ab06-7885668da372" />
+
+
 
 
 ## 🧠 Competências Demonstradas
@@ -83,8 +86,8 @@ Demonstrar domínio técnico de ponta a ponta para ambientes corporativos.
 
 ### 1.Clonar o repositório
 ```
-git clone https://github.com/<seu-usuario>/<seu-repo>.git
-cd <seu-repo>
+git clone https://github.com/xMACEDOX/Projeto_Final.git
+cd Projeto_Final
 ```
 
 
