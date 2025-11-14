@@ -41,8 +41,8 @@ Infra totalmente containerizada via Docker Compose, reproduzível em qualquer m�
 
 # ARQUITETURA DO PROJETO
 
+![Projeto (2)](https://github.com/user-attachments/assets/fc1373c2-0c58-4a60-a531-cbc7e7430c9a)
 
-<img width="502" height="748" alt="Projeto drawio (6)" src="https://github.com/user-attachments/assets/71da1095-0825-4272-ab06-7885668da372" />
 
 
 
@@ -208,8 +208,101 @@ Demonstração clara de habilidades avançadas de engenharia de dados
 
 # 🌐 ARQUITETURA ESCALÁVEL — PRÓXIMOS PASSOS DO PROJETO
 
-Esta seção é para documentar como o projeto pode evoluir para uma solução corporativa e altamente escalável.
-Aqui estão alguns tópicos já estruturados — você pode preencher cada um deles com seus futuros projetos..
+Com a evolução natural do projeto, a arquitetura foi pensada para suportar maior volume de dados, automação completa e análises avançadas. Essa versão escalável integra novos componentes que fortalecem a robustez da pipeline, ampliam o alcance analítico e habilitam o projeto para operações em tempo quase real.
+
+
+![Projeto (3)](https://github.com/user-attachments/assets/ab515503-8313-4361-a521-e8ea991aae14)
+
+
+## 🚀 Orquestração Completa com Apache Airflow
+
+O Airflow passa a ser responsável por gerenciar, agendar e monitorar toda a pipeline de dados:
+
+Execução automática dos jobs Spark (batch ou streaming)
+
+Dependências entre tarefas (ingestão → transformação → carga → dashboard)
+
+Reprocessamentos e retries
+
+Histórico de execução e visibilidade completa do fluxo
+
+Isso transforma a solução em um sistema totalmente automatizado, confiável e pronto para operar 24/7.
+
+
+## 🌦️ Ingestão Climática com Open-Meteo via Spark
+
+Para enriquecer as análises e prever impactos no transporte público, o projeto passa a incluir uma nova ingestão:
+
+Coleta contínua da API Open-Meteo usando Spark
+
+Armazenamento dos dados de clima em formato bruto na camada Raw
+
+Normalização e padronização na camada Silver
+
+Possibilidade de gerar KPIs climáticos e correlações com atrasos de linhas
+
+Essa integração adiciona uma dimensão importante ao projeto, permitindo análises como:
+
+“Atraso médio por condição climática”
+
+“Impacto de chuva/temperatura no headway”
+
+“Regiões mais sensíveis a variações climáticas”
+
+
+## 🧱 Lakehouse Moderno na Camada Silver
+
+Na arquitetura escalável, a camada Silver passa a operar como um Lakehouse, unificando:
+
+Formatos colunares de alta performance (ex.: Parquet / Delta Lake)
+
+Versionamento de dados
+
+Esquema organizado e padronizado
+
+Dados prontos para analytics e ML
+
+Isso garante:
+
+Performance superior nas consultas
+
+Escalabilidade horizontal
+
+Flexibilidade para análises avançadas
+
+Base confiável para dashboards e modelos preditivos
+
+
+## ⚙️ Spark como Motor Central de Processamento
+
+O Apache Spark é o núcleo de processamento da solução, responsável por:
+
+Ingestão dos dados da SPTrans e Open-Meteo
+
+Limpeza, transformação e enriquecimento
+
+Junções entre clima × previsões × posições × GTFS
+
+Escrita das tabelas Gold no PostgreSQL
+
+Suporte a workflows batch e near real-time
+
+Graças à orquestração do Airflow, todo o pipeline Spark é executado em ciclos automatizados, garantindo dados atualizados continuamente.
+
+
+## 📊 Dashboards Inteligentes (Power BI)
+
+Com uma arquitetura mais poderosa, os dashboards passam a refletir:
+
+Desempenho operacional das linhas
+
+Previsões de chegada atualizadas
+
+Tempo médio entre chegadas
+
+Atrasos por faixa horária ou região
+
+Alertas baseados em condições climáticas
 
 
 
