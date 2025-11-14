@@ -51,21 +51,23 @@ Infra totalmente containerizada via Docker Compose, reproduzível em qualquer m�
 
 Arquitetura Medallion (Bronze → Silver → Gold)
 
-Data Lake com MinIO (S3)
+Data Lake com MinIO (S3 compatível)
 
 Ingestão automatizada com Apache NiFi
 
-Processamento com Apache Spark (PySpark)
+Processamento distribuído com Apache Spark (PySpark)
 
-Orquestração com Docker / Docker Compose
+Orquestração e execução via Docker / Docker Compose
 
-Modelagem analítica em PostgreSQL
+Modelagem analítica e camada Gold em PostgreSQL
 
 Visualização de dados com Power BI
 
-Manipulação de APIs, GTFS e dados geoespaciais
+Manipulação de APIs (SPTrans, Open-Meteo), GTFS e dados geoespaciais
 
-Boas práticas de versionamento e organização de pipelines
+Exposição de dados e KPIs com FastAPI
+
+Boas práticas de versionamento, modularização e organização de pipelines
 
 
 ## 🎯 Objetivo
