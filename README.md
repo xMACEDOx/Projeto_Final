@@ -1,4 +1,4 @@
-# 🚌 Projeto SPTrans Data Pipeline
+# 🚌 Projeto SPTrans - Pipeline de dados
 
 ### Monitoramento em Near Real-Time do Transporte Público de São Paulo
 
