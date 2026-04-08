@@ -88,8 +88,8 @@ Demonstrar domínio técnico de ponta a ponta para ambientes corporativos.
 
 ### 1.Clonar o repositório
 ```
-git clone https://github.com/xMACEDOX/Projeto_Final.git
-cd Projeto_Final
+git clone https://github.com/xMACEDOX/PipelineSPTrans.git
+cd PipelineSPTrans
 ```
 
 
